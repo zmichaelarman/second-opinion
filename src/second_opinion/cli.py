@@ -169,6 +169,17 @@ def reference(
 
 
 @app.command()
+def rerun(
+    findings: Optional[Path] = typer.Option(None, "--findings", help="findings.jsonl (default: the latest investigation)."),
+    yes: bool = typer.Option(False, "--yes", help="Send the paid calls after the estimate is approved."),
+) -> None:
+    """Re-run every finding's repro at n=30 and mark each still failing or fixed."""
+    from .rerun import rerun as run_rerun
+
+    _run(lambda s: run_rerun(s, console, _latest_findings(s, findings), yes=yes))
+
+
+@app.command()
 def check(
     tools: Optional[Path] = typer.Option(None, "--tools", help="Your tool definitions (OpenAI format, JSON list)."),
     schemas: Optional[Path] = typer.Option(None, "--schemas", help="Your JSON schemas ({name: schema})."),

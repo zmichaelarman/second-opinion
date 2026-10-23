@@ -580,8 +580,8 @@ Dates are targets. Must tier = M0–M4, Should = M5. If time collapses, M0–M4 
 
 - [ ] **M0: Scaffold and smoke test (Fri 10/23)**
   - [x] `pyproject.toml`, package skeleton, `LICENSE` (Apache-2.0), `.gitignore`, `.env.example`, `FRICTION_LOG.md`, `config/prices.yaml`, `config/defaults.yaml`
-  - [ ] `second-opinion models`: discovery and filtering, printed as a table.
-  - [ ] `second-opinion smoke` (15 calls or fewer).
+  - [ ] `second-opinion models`: discovery and filtering, printed as a table. *Code done and tested offline; first live run pending `NEBIUS_API_KEY`.*
+  - [ ] `second-opinion smoke` (15 calls or fewer). *Code done and tested end to end against a fake server; live run pending `NEBIUS_API_KEY`. Uses its 15 calls as: 3 per model (banana off, banana on, forced `leading_zero` tool call streamed, which records SSE fixtures) + 2 thinking-off probes on the cheapest model (`extra_body`, `reasoning_effort: "none"`) + 1 SDK call.*
     1. List the models.
     2. For each Nemotron model: one banana call with thinking=false and one with thinking=true. Record where reasoning appears.
     3. For each Nemotron model: one forced `leading_zero` tool call.
@@ -589,29 +589,34 @@ Dates are targets. Must tier = M0–M4, Should = M5. If time collapses, M0–M4 
   - [ ] Update every **UNVERIFIED** item in §3 with the smoke results.
   - Acceptance: smoke runs end to end, writes `runs/<ts>-smoke/`, and the secret grep is clean.
 - [ ] **M1: Engine (Sat 10/24)**
-  - [ ] Client, SSE parser, pacer, budget guard, store/resume, contract base, oracles including `typed_equal`, stats, planner
-  - [ ] Offline unit tests for oracles, `typed_equal`, SSE assembly (from recorded smoke fixtures), stats and planner.
+  - [x] Client, SSE parser, pacer, budget guard, store/resume, contract base, oracles including `typed_equal`, stats, planner
+  - [ ] Offline unit tests for oracles, `typed_equal`, SSE assembly (from recorded smoke fixtures), stats and planner. *All written and passing; SSE tests use synthetic chunks until the smoke run records real ones.*
   - [ ] `second-opinion run --stage pilot` (needs the user's OK)
 - [ ] **M2: Tier 1 contracts and screening (Sat to Sun)**
-  - [ ] T1, T2, T3 (with the T4 stream conditions) and T5, with fixtures and generated schemas
-  - [ ] `second-opinion plan --write`. The user commits it and tags `prereg-v1`.
+  - [x] T1, T2, T3 (with the T4 stream conditions) and T5, with fixtures and generated schemas
+  - [ ] `second-opinion plan --write`. The user commits it and tags `prereg-v1`. *Command done; run it after the pilot settles the thinking switch.*
   - [ ] `screen` stage (needs the user's OK)
 - [ ] **M3: Docs checker (Sun 10/25)**
-  - [ ] fetch, extract, static, execute, repair, and the regression tests from §10.7
+  - [x] fetch, extract, static, execute, repair, and the regression tests from §10.7. *Static check run live (free) on 2026-10-23: 64 blocks on 18 pages, 4 failing (json.md Python and cURL, text-generation.md cURL, code-autocomplete cURL). Paid `--execute --repair` pending the user's OK.*
 - [ ] **M4: Escalation, report and Pages (Mon 10/26). Must-tier done.**
-  - [ ] `escalate` stage (needs the user's OK).
-  - [ ] `second-opinion report`, with GitHub Pages serving `/docs`.
+  - [ ] `escalate` stage (needs the user's OK). *Code done and tested offline.*
+  - [ ] `second-opinion report`, with GitHub Pages serving `/docs`. *Report done (checked in light, dark and true 380 px renders); Pages needs the public GitHub repo.*
 - [ ] **M5: Investigator, reference replay and bring-your-own mode (Tue 10/27)**
-  - [ ] cluster, shrink, hypothesize, experiment (with the safety gate), decide
-  - [ ] `second-opinion reference`
-  - [ ] `second-opinion check --tools tools.json [--schemas schemas.json]` (§14)
+  - [x] cluster, shrink, hypothesize, experiment (with the safety gate), decide. *Tested end to end against a fake server; live run pending.*
+  - [x] `second-opinion reference`. *Live run needs `NVIDIA_API_KEY`.*
+  - [x] `second-opinion check --tools tools.json [--schemas schemas.json]` (§14)
 - [ ] **M6: Packaging (Wed 10/28)**
-  - [ ] README, `FEEDBACK_DRAFT.md`, findings polish.
-  - [ ] `second-opinion rerun`: re-runs every finding's repro at n=30 and marks each still-failing or fixed
+  - [ ] README, `FEEDBACK_DRAFT.md`, findings polish. *README drafted; "What it found" and the feedback draft wait for real data.*
+  - [x] `second-opinion rerun`: re-runs every finding's repro at n=30 and marks each still-failing or fixed
   - [ ] Screenshots for the demo video
 - [ ] **M7: Submit (Thu 10/29)**
   - [ ] Morning `second-opinion rerun`, final report publish, secret grep, Devpost submission (done by the user)
 
+**Status notes (2026-10-23):**
+- All code for M0 to M6 is written; 187 offline tests pass (`pytest`). Every live run waits for `NEBIUS_API_KEY` in `.env` (and `NVIDIA_API_KEY` for `reference`).
+- Next live steps, in order: `smoke` (no OK needed) -> settle the thinking switch in `contracts/base.py` from its results -> `run --stage pilot` (OK) -> `plan --write`, user commits and tags `prereg-v1` -> `run --stage screen` (OK) -> `docs --execute --repair` (OK) -> `run --stage escalate` (OK) -> `investigate` (OK) -> `reference` (OK) -> `report` -> GitHub Pages.
+- Deviation: the spend ledger is `runs/ledger.jsonl`, append-only like the rest of `runs/`, instead of a rewritten `ledger.json`.
+- Deviation: the pilot runs after the M2 contracts exist, because its conditions come from the contract registry.
 
 ---
 
