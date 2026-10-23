@@ -199,3 +199,4 @@ def test_t5_schema_oracles_and_http_error_handling() -> None:
     resp_503 = ParsedResponse(status=503, error_type="HTTP_5XX")
     res_503 = t5.check(req, resp_503)
     assert res_503.outcome == Outcome.ERROR
+

@@ -73,3 +73,4 @@ async def discover_nemotron_models(
         if use_fallback_on_error:
             return list(FALLBACK_NEMOTRON_MODELS), list(FALLBACK_NEMOTRON_MODELS)
         raise
+

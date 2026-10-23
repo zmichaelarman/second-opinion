@@ -192,3 +192,4 @@ def load_records_from_runs(run_dirs: list[Path], final_only: bool = True) -> lis
                 else:
                     unkeyed.append(rec)
     return list(by_key.values()) + unkeyed
+

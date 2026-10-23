@@ -406,3 +406,4 @@ async def run_stage(
     }
     store.write_summary(summary)
     return store, budget_exceeded
+

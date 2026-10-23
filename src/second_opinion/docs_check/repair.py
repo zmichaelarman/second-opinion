@@ -151,3 +151,4 @@ def write_docs_findings(findings: list[dict[str, Any]], out_path: Path) -> None:
     with out_path.open("w", encoding="utf-8") as f:
         for item in findings:
             f.write(json.dumps(item, ensure_ascii=False) + "\n")
+

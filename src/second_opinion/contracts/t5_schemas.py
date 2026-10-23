@@ -104,3 +104,4 @@ class T5SchemasContract:
             shape = "wrapped"
 
         return check_schema_response(req, resp, schema=schema, shape=shape)
+

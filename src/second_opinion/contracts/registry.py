@@ -50,3 +50,4 @@ def compute_registry_hash(contracts: list[Contract] | None = None) -> str:
     data = serialize_registry(contracts)
     canonical = json.dumps(data, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+

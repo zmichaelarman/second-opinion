@@ -132,3 +132,4 @@ def build_base_chat_request(
         req["stream"] = True
         req["stream_options"] = {"include_usage": True}
     return req
+

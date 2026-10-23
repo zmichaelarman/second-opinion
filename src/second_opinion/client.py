@@ -204,3 +204,4 @@ class InferenceClient:
             if on_attempt is not None:
                 on_attempt(attempt, ts_start, parsed, True)
             return parsed
+

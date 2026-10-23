@@ -141,3 +141,4 @@ def trust_matrix_status(cells: Sequence[tuple[int, int]]) -> dict[str, object]:
         "worst_rate": worst_rate,
         "bound_str": bound_str,
     }
+

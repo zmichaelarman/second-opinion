@@ -212,3 +212,4 @@ async def rerun_findings(
 
     findings_path.write_text(json.dumps(findings, indent=2), encoding="utf-8")
     return findings
+

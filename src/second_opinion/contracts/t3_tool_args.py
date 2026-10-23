@@ -94,3 +94,4 @@ class T3ToolArgsContract:
             expected_args=expected_args,
             tool_schema=tool_schema,
         )
+

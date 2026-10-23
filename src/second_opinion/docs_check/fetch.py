@@ -121,3 +121,4 @@ async def fetch_docs(
     finally:
         if owns_client and client is not None:
             await client.aclose()
+

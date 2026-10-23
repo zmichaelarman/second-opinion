@@ -56,3 +56,4 @@ def write_all_schemas(out_dir: Path | None = None) -> None:
 
 if __name__ == "__main__":
     write_all_schemas()
+

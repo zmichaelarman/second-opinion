@@ -121,3 +121,4 @@ class T1ReasoningLeakContract:
 
         apply_common_soft_and_stream_checks(req, resp, codes, detail)
         return build_oracle_result(codes, detail, docs_shape=True, default_severity=self.severity)
+

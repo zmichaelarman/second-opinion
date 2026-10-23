@@ -92,3 +92,4 @@ class HeaderAwarePacer:
                 now = self._clock()
             self._next_allowed_ts = now + interval
         return waited
+

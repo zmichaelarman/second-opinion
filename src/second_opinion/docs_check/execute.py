@@ -78,3 +78,4 @@ def _extract_exception_type(stderr: str) -> str:
         if m:
             return m.group(1).split(".")[-1]
     return "RuntimeError"
+

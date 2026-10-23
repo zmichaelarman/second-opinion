@@ -171,3 +171,4 @@ def test_byo_generator_and_report_builder(tmp_path: Path) -> None:
     html = outputs["index_html"].read_text(encoding="utf-8")
     assert "What to Trust" in html
     assert "prefers-color-scheme: dark" in html
+

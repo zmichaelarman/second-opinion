@@ -196,3 +196,4 @@ async def shrink_cluster_request(
             idx = 0
 
     return current_req, current_rate, history
+

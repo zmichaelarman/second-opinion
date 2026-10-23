@@ -20,3 +20,4 @@ connect_timeout_s: 10.0
 read_timeout_s: 600.0
 hypothesis_model: "nvidia/Nemotron-3-Ultra-550b-a55b"
 code_model: "nvidia/nemotron-3-super-120b-a12b"
+

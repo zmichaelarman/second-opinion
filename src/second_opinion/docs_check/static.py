@@ -220,3 +220,4 @@ def check_code_block_static(
                 res.errors.append(f"Model ID {mid!r} is not in live /v1/models list.")
 
     return res
+

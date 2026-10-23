@@ -192,3 +192,4 @@ async def propose_hypotheses(
         pass
 
     return fallback_hypotheses_for_cluster(cluster)
+

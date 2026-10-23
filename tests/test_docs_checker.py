@@ -56,3 +56,4 @@ def test_model_not_listed_and_execution_allowlist() -> None:
     diff = make_unified_diff("a = 1\n", "a = 2\n", filename="test.py")
     assert "-a = 1" in diff
     assert "+a = 2" in diff
+

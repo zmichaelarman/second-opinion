@@ -81,3 +81,4 @@ def test_trust_matrix_color_rules() -> None:
     # Red: 15 failures in 100 trials (Wilson lower bound ~9.3% > 1.0%)
     st_red = trust_matrix_status([(15, 100), (0, 300)])
     assert st_red["color"] == "red"
+

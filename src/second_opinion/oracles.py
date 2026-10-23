@@ -605,3 +605,4 @@ def check_schema_response(
 
     apply_common_soft_and_stream_checks(req, resp, codes, detail)
     return build_oracle_result(codes, detail, docs_shape=True)
+

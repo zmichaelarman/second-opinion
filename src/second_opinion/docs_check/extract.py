@@ -88,3 +88,4 @@ def extract_code_blocks(markdown_text: str, page_url: str, page_title: str = "")
                 buf.append(line)
 
     return blocks
+

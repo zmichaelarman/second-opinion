@@ -101,3 +101,4 @@ def cluster_failures(records: list[dict[str, Any]]) -> list[FailureCluster]:
         key=lambda c: (c.severity.value, -(len(c.models_affected) * c.failure_rate), -c.failure_count)
     )
     return clusters
+

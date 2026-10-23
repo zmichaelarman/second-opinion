@@ -119,3 +119,4 @@ class BudgetGuard:
             p_tok = fallback_in
             c_tok = fallback_out
         return self.config.estimate_cost(model, p_tok, c_tok)
+

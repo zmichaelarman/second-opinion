@@ -170,3 +170,4 @@ def get_nvidia_api_key(repo_root: Path | None = None) -> str:
             "NVIDIA_API_KEY is not set. Add it to .env (see .env.example) before running reference replay."
         )
     return key
+

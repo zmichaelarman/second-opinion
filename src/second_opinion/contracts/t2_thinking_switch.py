@@ -102,3 +102,4 @@ class T2ThinkingSwitchContract:
 
         apply_common_soft_and_stream_checks(req, resp, codes, detail)
         return build_oracle_result(codes, detail, docs_shape=False, default_severity=self.severity)
+

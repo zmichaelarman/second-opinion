@@ -314,3 +314,4 @@ def compare(arm_a: ArmResult, arm_b: ArmResult, hypothesis_id: str) -> dict[str,
     safe_id = "".join(ch if ch.isalnum() or ch in ("_", "-") else "_" for ch in hypothesis_id)
     (out_dir / f"{safe_id}.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     return result
+

@@ -411,3 +411,4 @@ def verify_prereg(repo_root: Path | None = None, contracts: list[Contract] | Non
         errors.append(f"Unable to verify git tag `prereg-v1`: {exc}")
 
     return (len(errors) == 0, errors)
+

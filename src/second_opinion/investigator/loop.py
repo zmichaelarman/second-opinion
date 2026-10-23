@@ -171,3 +171,4 @@ async def run_investigator(
     findings_path.write_text(json.dumps(findings, indent=2), encoding="utf-8")
     store.write_summary({"run_id": store.run_id, "findings_count": len(findings)})
     return findings
+

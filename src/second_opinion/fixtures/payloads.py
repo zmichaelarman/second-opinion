@@ -66,3 +66,4 @@ def load_schema_definition(variant: str) -> dict[str, Any]:
     filename = "flat_basic.json" if variant == "enum_temptation" else f"{variant}.json"
     path = SCHEMAS_DIR / filename
     return json.loads(path.read_text(encoding="utf-8"))
+
