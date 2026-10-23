@@ -1,0 +1,37 @@
+{
+  "properties": {
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "nickname": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nickname"
+    },
+    "age": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Age"
+    }
+  },
+  "required": [
+    "name",
+    "nickname",
+    "age"
+  ],
+  "title": "Person",
+  "type": "object"
+}

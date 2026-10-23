@@ -1,0 +1,58 @@
+{
+  "$defs": {
+    "Customer": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "email": {
+          "title": "Email",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "email"
+      ],
+      "title": "Customer",
+      "type": "object"
+    },
+    "LineItem": {
+      "properties": {
+        "sku": {
+          "title": "Sku",
+          "type": "string"
+        },
+        "qty": {
+          "title": "Qty",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "sku",
+        "qty"
+      ],
+      "title": "LineItem",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "customer": {
+      "$ref": "#/$defs/Customer"
+    },
+    "items": {
+      "items": {
+        "$ref": "#/$defs/LineItem"
+      },
+      "title": "Items",
+      "type": "array"
+    }
+  },
+  "required": [
+    "customer",
+    "items"
+  ],
+  "title": "Order",
+  "type": "object"
+}

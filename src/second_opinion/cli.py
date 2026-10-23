@@ -56,6 +56,26 @@ def smoke() -> None:
 
 
 @app.command()
+def plan(write: bool = typer.Option(False, "--write", help="Write TEST_PLAN.md for pre-registration.")) -> None:
+    """Show the contract registry and its hash; --write generates TEST_PLAN.md."""
+    from .contracts.registry import all_contracts
+    from .planner import registry, registry_hash, render_test_plan
+
+    settings = load_settings()
+    contracts = all_contracts()
+    digest = registry_hash(registry(settings.defaults))
+    console.print(f"{len(contracts)} contracts, {sum(len(c.conditions) for c in contracts)} conditions. "
+                  f"Registry SHA-256: {digest}")
+    for c in contracts:
+        console.print(f"  {c.id:<20} {c.severity.name:<10} {len(c.conditions)} condition(s)")
+    if write:
+        path = settings.root / "TEST_PLAN.md"
+        path.write_text(render_test_plan(settings.defaults, sorted(settings.prices)))
+        console.print(f"Wrote {path}. Pre-register it before screening:\n"
+                      "  git add TEST_PLAN.md && git commit -m \"Pre-register test plan\" && git tag prereg-v1")
+
+
+@app.command()
 def run(
     stage: Stage = typer.Option(..., "--stage", help="pilot, screen or escalate."),
     models_spec: str = typer.Option("auto", "--models", help="auto, or a comma list of model IDs."),

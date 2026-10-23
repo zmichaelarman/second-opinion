@@ -1,0 +1,7 @@
+{
+  "type": "object",
+  "properties": {
+    "ticket_code": {"type": "string", "pattern": "^[A-Z]{3}-[0-9]{4}$"}
+  },
+  "required": ["ticket_code"]
+}
