@@ -106,3 +106,21 @@ def docs(
     from .docs_check.pipeline import run_docs
 
     _run(lambda s: run_docs(s, console, execute=execute, repair=repair, yes=yes))
+
+
+@app.command()
+def report(
+    runs: list[Path] = typer.Option([], "--runs", help="Run directories (default: every screen and escalate run)."),
+    out: Path = typer.Option(Path("docs"), "--out", help="Output directory (GitHub Pages serves /docs)."),
+) -> None:
+    """Build docs/index.html, docs/findings.md, docs/data/ and FEEDBACK_DRAFT.md from raw run data."""
+    from .report.build import build_report, default_runs
+
+    settings = load_settings()
+    run_dirs = [p.resolve() for p in runs] or default_runs(settings.runs_dir)
+    if not run_dirs:
+        console.print("[yellow]No screen or escalate runs found; the report will show docs results only.[/yellow]")
+    out_dir = out if out.is_absolute() else settings.root / out
+    paths = build_report(settings, run_dirs, out_dir)
+    for name, path in paths.items():
+        console.print(f"{name}: {path}")

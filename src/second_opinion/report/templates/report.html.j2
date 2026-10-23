@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Second Opinion report</title>
+<meta name="description" content="Contract tests of how Nebius Token Factory converts NVIDIA Nemotron output into JSON, tool calls, reasoning and streams.">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #6f6d68;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10); --code-bg: #f0efec;
+  --series-1: #2a78d6; --link: #1c5cab;
+  --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b; --neutral: #898781;
+  --wash-good: rgba(12,163,12,0.10); --wash-warning: rgba(250,178,25,0.18); --wash-serious: rgba(236,131,90,0.16);
+  --wash-critical: rgba(208,59,59,0.10); --wash-neutral: rgba(137,135,129,0.12);
+  --add-bg: rgba(12,163,12,0.12); --del-bg: rgba(208,59,59,0.12);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #a3a29b;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10); --code-bg: #232321;
+    --series-1: #3987e5; --link: #86b6ef;
+    --wash-good: rgba(12,163,12,0.20); --wash-warning: rgba(250,178,25,0.18); --wash-serious: rgba(236,131,90,0.20);
+    --wash-critical: rgba(208,59,59,0.24); --wash-neutral: rgba(137,135,129,0.18);
+    --add-bg: rgba(12,163,12,0.22); --del-bg: rgba(208,59,59,0.26);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #a3a29b;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10); --code-bg: #232321;
+  --series-1: #3987e5; --link: #86b6ef;
+  --wash-good: rgba(12,163,12,0.20); --wash-warning: rgba(250,178,25,0.18); --wash-serious: rgba(236,131,90,0.20);
+  --wash-critical: rgba(208,59,59,0.24); --wash-neutral: rgba(137,135,129,0.18);
+  --add-bg: rgba(12,163,12,0.22); --del-bg: rgba(208,59,59,0.26);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+a { color: var(--link); }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 28px 16px 64px; }
+header.top h1 { font-size: 30px; line-height: 1.2; margin: 0 0 6px; }
+header.top .lede { font-size: 18px; color: var(--ink-2); margin: 0 0 12px; max-width: 760px; }
+.meta { font-size: 14px; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; }
+.meta code { font-size: 13px; }
+.toggle { margin-left: auto; font: inherit; font-size: 13px; color: var(--ink-2); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; cursor: pointer; }
+section.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-top: 20px; }
+section.card > h2 { font-size: 21px; margin: 0 0 4px; }
+.sub { color: var(--ink-2); margin: 0 0 14px; font-size: 15px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 18px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+.tile .label { font-size: 13px; color: var(--ink-2); }
+.tile .value { font-size: 26px; font-weight: 600; line-height: 1.25; }
+.tile .note { font-size: 12px; color: var(--muted); }
+.scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--grid); }
+thead th { font-size: 13px; color: var(--ink-2); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.codes { overflow-wrap: anywhere; min-width: 140px; }
+table.matrix { min-width: 760px; table-layout: fixed; }
+table.matrix thead th:first-child { width: 150px; }
+table.matrix th[scope="row"] { position: sticky; left: 0; background: var(--surface); z-index: 1; font-size: 14px; }
+table.matrix th[scope="row"] .mid { display: block; font-weight: 400; font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
+td.st { border-left: 2px solid var(--surface); }
+td.st-red { background: var(--wash-critical); }
+td.st-amber { background: var(--wash-warning); }
+td.st-green { background: var(--wash-good); }
+td.st-none { background: var(--wash-neutral); }
+.st-head { display: flex; align-items: center; gap: 6px; }
+.st-text { display: block; font-size: 12px; line-height: 1.35; color: var(--ink-2); margin-top: 2px; overflow-wrap: anywhere; }
+.icon { width: 16px; height: 16px; flex: none; }
+.i-good { color: var(--good); } .i-warning { color: var(--warning); } .i-serious { color: var(--serious); }
+.i-critical { color: var(--critical); } .i-neutral { color: var(--neutral); }
+ul.legend { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 6px; font-size: 14px; color: var(--ink-2); }
+ul.legend li { display: flex; gap: 8px; align-items: flex-start; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; background: var(--surface); color: var(--ink); white-space: nowrap; }
+.chip.sev-critical { background: var(--wash-critical); } .chip.sev-serious { background: var(--wash-serious); }
+.chip.sev-warning { background: var(--wash-warning); } .chip.sev-neutral { background: var(--wash-neutral); }
+article.finding { border-top: 1px solid var(--grid); padding: 18px 0 6px; }
+article.finding:first-of-type { border-top: 0; padding-top: 4px; }
+article.finding > header { display: flex; flex-wrap: wrap; gap: 6px; }
+article.finding h3 { font-size: 18px; margin: 10px 0 4px; }
+article.finding p { margin: 6px 0; }
+details { margin: 10px 0; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; }
+details > summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+pre { background: var(--code-bg); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: 12.5px; line-height: 1.45; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+p code, li code, td code { background: var(--code-bg); padding: 1px 4px; border-radius: 4px; font-size: 0.9em; }
+.dotplot { margin: 12px 0 4px; }
+.dp-row { display: grid; grid-template-columns: minmax(110px, 30%) 1fr 118px; gap: 10px; align-items: center; min-height: 28px; }
+.dp-label { font-size: 13px; color: var(--ink-2); overflow-wrap: anywhere; }
+.dp-track { position: relative; height: 28px; }
+.dp-grid { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--grid); }
+.dp-grid.base { background: var(--axis); }
+.dp-ci { position: absolute; top: 13px; height: 2px; background: var(--series-1); border-radius: 1px; }
+.dp-dot { position: absolute; top: 9px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--series-1); box-shadow: 0 0 0 2px var(--surface); outline: none; }
+.dp-dot::before { content: ""; position: absolute; inset: -9px; border-radius: 50%; }
+.dp-dot:hover, .dp-dot:focus-visible { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--series-1); }
+.dp-value { font-size: 13px; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.dp-value .ci { color: var(--ink-2); }
+.dp-axis { position: relative; height: 18px; font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.dp-axis span { position: absolute; transform: translateX(-50%); }
+.dp-axis span:first-child { transform: none; } .dp-axis span:last-child { transform: translateX(-100%); }
+.ev { font-size: 13.5px; }
+.ev dt { font-weight: 600; margin-top: 6px; } .ev dd { margin: 2px 0 0; }
+.diff .add { background: var(--add-bg); display: block; } .diff .del { background: var(--del-bg); display: block; }
+.ok { color: var(--ink); } .muted { color: var(--ink-2); }
+#tip { position: fixed; z-index: 10; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px; box-shadow: 0 4px 16px rgba(0,0,0,0.14); max-width: 280px; }
+#tip strong { display: block; font-size: 15px; }
+#tip span { color: var(--ink-2); }
+footer { margin-top: 28px; font-size: 13px; color: var(--ink-2); }
+@media (max-width: 560px) {
+  header.top h1 { font-size: 25px; }
+  .dp-row { grid-template-columns: 1fr auto; }
+  .dp-value .ci { font-size: 12px; }
+  .dp-label { grid-column: 1 / -1; margin-top: 6px; }
+  .dp-axis-row > div:first-child { display: none; }
+  section.card { padding: 16px; }
+}
+@media print { .toggle { display: none; } details { break-inside: avoid; } }
+</style>
+</head>
+<body>
+{% macro icon(tone) -%}
+{% if tone in ("good", "green") -%}
+<svg class="icon i-good" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M4.6 8.3l2.2 2.2 4.6-4.8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{%- elif tone in ("warning", "amber") -%}
+<svg class="icon i-warning" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5l7 12.5H1z" fill="currentColor"/><path d="M8 6v3.6" stroke="#0b0b0b" stroke-width="1.7" stroke-linecap="round"/><circle cx="8" cy="11.9" r="1" fill="#0b0b0b"/></svg>
+{%- elif tone == "serious" -%}
+<svg class="icon i-serious" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="3" fill="currentColor"/><path d="M8 4.5v4.4" stroke="#0b0b0b" stroke-width="1.7" stroke-linecap="round"/><circle cx="8" cy="11.4" r="1" fill="#0b0b0b"/></svg>
+{%- elif tone in ("critical", "red") -%}
+<svg class="icon i-critical" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+{%- else -%}
+<svg class="icon i-neutral" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5 8h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+{%- endif %}
+{%- endmacro %}
+
+{% macro dotplot(arms) %}
+{% set top = axis_max(arms | map(attribute="hi") | list) %}
+{% set ticks = axis_ticks(top) %}
+<div class="dotplot" role="group" aria-label="Failure rate per arm, dot = observed rate, line = 95% Wilson interval">
+{% for a in arms %}
+  <div class="dp-row">
+    <div class="dp-label">{{ a.label }}</div>
+    <div class="dp-track">
+      {% for t in ticks %}<span class="dp-grid{{ ' base' if t == 0 else '' }}" style="left:{{ '%.2f' % (t * 100) }}%"></span>{% endfor %}
+      <span class="dp-ci" style="left:{{ '%.2f' % (a.lo / top * 100) }}%;width:{{ '%.2f' % ((([a.hi, top] | min) - a.lo) / top * 100) }}%"></span>
+      <span class="dp-dot" tabindex="0" style="left:{{ '%.2f' % ((([a.rate, top] | min)) / top * 100) }}%"
+            data-tip-value="{{ a.rate | pct(1) }} failed"
+            data-tip-label="{{ a.label }}: {{ a.k }} of {{ a.n }} trials, 95% CI {{ a.lo | pct(1) }}-{{ a.hi | pct(1) }}"
+            aria-label="{{ a.label }}: {{ a.rate | pct(1) }} failed, {{ a.k }} of {{ a.n }}, 95% CI {{ a.lo | pct(1) }} to {{ a.hi | pct(1) }}"></span>
+    </div>
+    <div class="dp-value">{{ a.rate | pct }} <span class="ci">[{{ a.lo | pct }}-{{ a.hi | pct }}]</span></div>
+  </div>
+{% endfor %}
+  <div class="dp-row dp-axis-row"><div></div><div class="dp-axis">{% for t in ticks %}<span style="left:{{ '%.2f' % (t * 100) }}%">{{ (t * top) | pct }}</span>{% endfor %}</div><div></div></div>
+</div>
+<details><summary>Table view</summary>
+<div class="scroll"><table>
+<thead><tr><th>Arm</th><th class="num">Failed</th><th class="num">Trials</th><th class="num">Rate</th><th class="num">95% CI</th></tr></thead>
+<tbody>{% for a in arms %}<tr><td>{{ a.label }}</td><td class="num">{{ a.k }}</td><td class="num">{{ a.n }}</td><td class="num">{{ a.rate | pct(1) }}</td><td class="num">{{ a.lo | pct(1) }}-{{ a.hi | pct(1) }}</td></tr>{% endfor %}</tbody>
+</table></div>
+</details>
+{% endmacro %}
+
+{% macro cmp_table(rows) %}
+<div class="scroll"><table>
+  <thead><tr><th>Model</th><th>Contract</th><th class="num">{{ rows[0].a.label }}</th><th class="num">{{ rows[0].b.label }}</th><th class="num">p (Holm)</th><th>Result</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr><td>{{ d.names.get(r.model, r.model | short) }}</td><td><code>{{ r.contract_id }}</code></td>
+    <td class="num">{{ r.a.k }}/{{ r.a.n }} ({{ r.a.rate | pct }})</td><td class="num">{{ r.b.k }}/{{ r.b.n }} ({{ r.b.rate | pct }})</td>
+    <td class="num">{{ "%.2g" % r.p_holm }}</td>
+    <td>{% if r.significant %}<span class="st-head">{{ icon("serious") }}<strong>Differs</strong></span>{% else %}<span class="muted">No significant difference</span>{% endif %}</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% endmacro %}
+
+<div class="wrap">
+<header class="top">
+  <h1>Second Opinion</h1>
+  <p class="lede">Does Nebius Token Factory keep its promises to developers building agents on NVIDIA Nemotron? Deterministic contract tests of the conversion layer: JSON, tool calls, reasoning and streaming.</p>
+  <div class="meta">
+    <span>Generated {{ d.generated }}</span>
+    {% if d.git.commit %}<span>Commit <code>{{ d.git.commit[:10] }}</code>{{ " (uncommitted changes)" if d.git.dirty else "" }}</span>{% endif %}
+    {% if d.prereg.tag_commit %}
+    <span>Pre-registered as <code>prereg-v1</code> ({{ d.prereg.tag_commit[:10] }}){% if d.prereg.plan_hash == d.prereg.code_hash %}, plan hash matches the code{% else %}, plan hash does not match the current code{% endif %}</span>
+    {% else %}<span>No <code>prereg-v1</code> tag yet</span>{% endif %}
+    {% if d.totals.first %}<span>Data {{ d.totals.first }}{{ " to " ~ d.totals.last if d.totals.last != d.totals.first else "" }}</span>{% endif %}
+    <button class="toggle" type="button" id="theme" aria-label="Color theme">Theme: auto</button>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="label">Trials analyzed</div><div class="value">{{ "{:,}".format(d.totals.trials) }}</div><div class="note">{{ d.totals.fail }} failed, {{ d.totals.error }} errors</div></div>
+    <div class="tile"><div class="label">Models tested</div><div class="value">{{ d.totals.models }}</div><div class="note">{{ d.totals.cells }} cells</div></div>
+    <div class="tile"><div class="label">Findings</div><div class="value">{{ d.totals.findings }}</div><div class="note">{{ d.totals.s1 }} silent corruption (S1)</div></div>
+    {% if d.docs %}<div class="tile"><div class="label">Docs examples passing</div><div class="value">{{ d.docs.summary.examples_passing }}/{{ d.docs.summary.examples_checked }}</div><div class="note">{{ d.docs.summary.repaired }} repaired by the agent</div></div>{% endif %}
+    <div class="tile"><div class="label">API spend</div><div class="value">${{ "%.2f" % d.totals.cost_usd }}</div><div class="note">all attempts in these runs</div></div>
+  </div>
+</header>
+
+<section class="card" id="trust">
+  <h2>What to trust</h2>
+  <p class="sub">Each cell takes the status of the worst condition in its column, pooled over every trial for that model.</p>
+  {% if d.models %}
+  <div class="scroll"><table class="matrix">
+    <thead><tr><th scope="col">Model</th>{% for key, label in d.columns.items() %}<th scope="col">{{ label }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for m in d.models %}
+      <tr><th scope="row">{{ d.names.get(m, m | short) }}<span class="mid">{{ m }}</span></th>
+      {% for key in d.columns %}{% set c = d.matrix[m][key] %}
+        <td class="st st-{{ c.status }}"><span class="st-head">{{ icon(c.status) }}<strong>{{ c.label }}</strong></span><span class="st-text">{{ c.lines[0] }}</span>{% if c.lines[1] %}<span class="st-text">{{ c.lines[1] }}</span>{% endif %}</td>
+      {% endfor %}</tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  <ul class="legend">
+    <li>{{ icon("red") }}<span><strong>Unreliable:</strong> {{ d.color_rules.red }}.</span></li>
+    <li>{{ icon("amber") }}<span><strong>Caution:</strong> {{ d.color_rules.amber }}.</span></li>
+    <li>{{ icon("green") }}<span><strong>Reliable:</strong> {{ d.color_rules.green }} (95% upper bound).</span></li>
+  </ul>
+  {% else %}<p>No screening data yet.</p>{% endif %}
+</section>
+
+<section class="card" id="findings">
+  <h2>Findings</h2>
+  {% if d.findings_status == "clusters" %}
+  <p class="sub">Failure clusters grouped by contract and failure codes (at least 3 failures, or 1 for silent corruption). They have not been through the Investigator or the NVIDIA reference replay yet, so every owner is unknown.</p>
+  {% else %}
+  <p class="sub">Root-caused by the Investigator: shrunk to a minimal request, cause accepted by Fisher's exact test (Holm, adjusted p &lt; {{ d.methods.alpha }}, effect at least 5 points), owner set by the NVIDIA reference replay.</p>
+  {% endif %}
+  {% for f in d.findings %}
+  {% set sev = SEVERITY_LABEL[f.severity] %}
+  <article class="finding" id="f-{{ f.id }}">
+    <header>
+      <span class="chip sev-{{ sev[2] }}">{{ icon(sev[2]) }}{{ sev[0] }} · {{ sev[1] }}</span>
+      <span class="chip">Owner: {{ OWNER_LABEL.get(f.owner, f.owner) }}</span>
+      {% if f.contract_id %}<span class="chip"><code>{{ f.contract_id }}</code></span>{% endif %}
+    </header>
+    <h3>{{ f.title }}</h3>
+    <p>{{ f.summary }}</p>
+    {% if f.models %}<p class="muted">Models: {% for m in f.models %}{{ d.names.get(m, m | short) }}{{ ", " if not loop.last else "" }}{% endfor %}</p>{% endif %}
+    {% if f.factor %}<p><strong>Cause:</strong> {{ f.factor }}{% if f.p_value is not none %} (adjusted p = {{ "%.2g" % f.p_value }}){% endif %}</p>{% endif %}
+    {% if f.workaround %}<p><strong>Workaround:</strong> {{ f.workaround }}</p>{% endif %}
+    {% if f.reference %}<p><strong>NVIDIA reference replay:</strong> {{ f.reference.summary }}</p>{% endif %}
+    {% if f.arms %}{{ dotplot(f.arms) }}{% endif %}
+    {% if f.evidence %}
+    <details><summary>Evidence ({{ f.evidence | length }} failing trial{{ "s" if f.evidence | length > 1 else "" }})</summary>
+      {% for e in f.evidence %}
+      <dl class="ev">
+        <dt>{{ d.names.get(e.model, e.model | short) }} · {{ e.condition }} · codes {{ e.codes | join(", ") }} · finish_reason {{ e.finish_reason }}</dt>
+        {% for m in e.mismatches %}<dd><code>{{ m.path }}</code> {{ m.code }}{% if m.note %} ({{ m.note.split("\n")[0] }}){% endif %}: expected <code>{{ m.expected | tojson }}</code>, got <code>{{ m.got | tojson }}</code></dd>{% endfor %}
+        {% if e.arguments %}<dd>Arguments as returned:<pre><code>{{ e.arguments }}</code></pre></dd>{% endif %}
+        {% if e.content_head %}<dd>Content as returned:<pre><code>{{ e.content_head }}</code></pre></dd>{% endif %}
+      </dl>
+      {% endfor %}
+    </details>
+    {% endif %}
+    {% if f.repro %}
+    <details><summary>Minimal repro</summary>
+      <p class="muted">cURL:</p><pre><code>{{ f.repro.curl }}</code></pre>
+      <p class="muted">Python:</p><pre><code>{{ f.repro.python }}</code></pre>
+    </details>
+    {% endif %}
+  </article>
+  {% else %}
+  <p>No fatal failure clusters in these runs.</p>
+  {% endfor %}
+</section>
+
+<section class="card" id="comparisons">
+  <h2>Pre-registered comparisons</h2>
+  <p class="sub">Two-sided Fisher exact tests, Holm-corrected within each family; significant at adjusted p &lt; {{ d.methods.alpha }}.</p>
+  {% for fam, rows in d.families.items() %}
+  {% set sig = rows | selectattr("significant") | list %}
+  <h3 style="font-size:16px;margin:16px 0 6px">{{ fam }}: {{ d.family_specs[fam].name }} <span class="muted" style="font-weight:400">({{ sig | length }} of {{ rows | length }} significant)</span></h3>
+  <p class="muted" style="margin:0 0 6px;font-size:14px">{{ d.family_specs[fam].scope }}; {{ d.family_specs[fam].arms }}.</p>
+  {% if sig %}{{ cmp_table(sig) }}{% endif %}
+  {% if rows %}
+  <details><summary>All {{ rows | length }} comparisons in {{ fam }}</summary>{{ cmp_table(rows) }}</details>
+  {% else %}<p class="muted">Not enough data in both arms yet.</p>{% endif %}
+  {% endfor %}
+</section>
+
+<section class="card" id="docs">
+  <h2>Docs health</h2>
+  {% if d.docs %}
+  {% set s = d.docs.summary %}
+  <p class="sub">{{ s.examples_passing }} of {{ s.examples_checked }} checked code examples pass across {{ s.pages }} inference docs pages; {{ s.findings }} finding{{ "s" if s.findings != 1 else "" }}; {{ s.repaired }} repaired and verified by the repair agent (Nemotron 3 Super).
+  {% if not s.models_checked %} Model IDs were not checked in this run.{% endif %}
+  {% if s.js_unchecked %} {{ s.js_unchecked }} JavaScript examples were not checked (node not available).{% endif %}</p>
+  {% if d.docs.findings %}
+  <div class="scroll"><table>
+    <thead><tr><th>Page</th><th class="num">Line</th><th>Codes</th><th>Severity</th><th>Repaired</th></tr></thead>
+    <tbody>
+    {% for f in d.docs.findings %}
+      <tr><td><a href="{{ f.page_url }}">{{ f.page_title }}</a></td><td class="num">{{ f.line }}</td><td class="codes">{{ f.codes | join(", ") }}</td>
+      <td>{{ SEVERITY_LABEL[f.severity][0] }}</td><td>{{ "yes, in " ~ f.attempts if f.fixed else ("no" if f.fixed == false else "not attempted") }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% for f in d.docs.findings %}
+  <details><summary>{{ f.page_title }}, line {{ f.line }}: {{ f.codes | join(", ") }}</summary>
+    <pre><code>{{ f.error }}</code></pre>
+    {% for name, p in (f.probes or {}).items() %}<p>Live probe of <code>{{ name }}</code>: HTTP {{ p.status }}, {{ p.verdict }}.</p>{% endfor %}
+    {% if f.patch %}<p class="muted">Verified repair:</p><pre class="diff"><code>{% for line in f.patch.splitlines() %}{% if line.startswith("+") and not line.startswith("+++") %}<span class="add">{{ line }}</span>{% elif line.startswith("-") and not line.startswith("---") %}<span class="del">{{ line }}</span>{% else %}{{ line }}
+{% endif %}{% endfor %}</code></pre>{% endif %}
+  </details>
+  {% endfor %}
+  {% endif %}
+  {% else %}<p>No docs check has been run yet.</p>{% endif %}
+</section>
+
+<section class="card" id="methods">
+  <h2>Methods and limitations</h2>
+  <ul>
+    <li><strong>Subjects:</strong> {% for m in d.models %}<code>{{ m }}</code>{{ ", " if not loop.last else "" }}{% endfor %}, discovered at run time from <code>GET /v1/models</code>. Runs: {{ d.runs | join(", ") or "none" }}.</li>
+    <li><strong>Sampling:</strong> temperature {{ d.methods.temperature }}, top_p {{ d.methods.top_p }} (NVIDIA's recommendation for Nemotron); max_tokens {{ d.methods.max_tokens_off }} with thinking off and {{ d.methods.max_tokens_on }} with thinking on or omitted, unless a condition sets it. Thinking is switched with <code>{{ d.methods.thinking_switch }}</code>.</li>
+    <li><strong>Oracles:</strong> pass/fail is decided by deterministic code, never by an LLM. A trial with any fatal code fails; HTTP 5xx, 429 and timeouts are errors and are excluded from denominators. Rates carry 95% Wilson intervals.</li>
+    <li><strong>Design:</strong> pre-registered in <code>TEST_PLAN.md</code> before screening (n={{ d.methods.n_screen }} per cell), then cells with a failure, plus core conditions, were topped up to n={{ d.methods.n_escalate }}. The pilot is excluded. A matrix cell is red when a Wilson lower bound exceeds {{ d.methods.red_lower_bound | pct }}.</li>
+    <li><strong>Light load only:</strong> at most {{ d.methods.rpm }} requests per minute and {{ d.methods.concurrency }} in flight, slowing down on rate-limit headers. No load or stress testing. Latency was recorded but is not reported as a result.</li>
+    <li><strong>Global routing:</strong> public serverless endpoints report region "Global", and the processing location can change without notice, so results may differ by time and route.</li>
+    <li><strong>Finish reasons:</strong> OpenAI itself returns <code>finish_reason: "stop"</code> for a forced named tool call, so <code>FINISH_REASON_WRONG</code> is soft (informational).</li>
+    <li><strong>Reference replay:</strong> NVIDIA's hosted API is a different serving stack, used as a reference, not ground truth. Plain Nemotron 3 Nano is not listed there, so Nano findings keep owner "unknown".</li>
+    <li><strong>Not tested:</strong> model intelligence, throughput, headline latency, and Tier 2/3 behaviors such as <code>tool_choice: "required"</code>, seeds and caching.</li>
+  </ul>
+</section>
+
+<section class="card" id="data">
+  <h2>Data</h2>
+  <p class="sub">Every call is recorded in full (request body, response headers, raw JSON or SSE chunks, oracle verdict). No credentials are stored.</p>
+  {% if d.data_files %}
+  <ul>{% for f in d.data_files %}<li><a href="data/{{ f.name }}">{{ f.name }}</a> <span class="muted">({{ "%.1f" % (f.bytes / 1024) }} KB)</span></li>{% endfor %}</ul>
+  {% endif %}
+</section>
+
+<footer>Second Opinion is open source under the Apache-2.0 license. Built for the Nebius x NVIDIA Global AI Hackathon.</footer>
+</div>
+<div id="tip" role="tooltip" hidden><strong id="tip-v"></strong><span id="tip-l"></span></div>
+<script>
+(() => {
+  const tip = document.getElementById("tip"), tv = document.getElementById("tip-v"), tl = document.getElementById("tip-l");
+  const show = (el) => {
+    tv.textContent = el.dataset.tipValue || "";
+    tl.textContent = el.dataset.tipLabel || "";
+    tip.hidden = false;
+    const r = el.getBoundingClientRect(), t = tip.getBoundingClientRect();
+    const x = Math.max(8, Math.min(r.left + r.width / 2 - t.width / 2, innerWidth - t.width - 8));
+    let y = r.top - t.height - 10;
+    if (y < 8) y = r.bottom + 10;
+    tip.style.left = x + "px";
+    tip.style.top = y + "px";
+  };
+  const hide = () => { tip.hidden = true; };
+  document.querySelectorAll("[data-tip-value]").forEach((el) => {
+    el.addEventListener("pointerenter", () => show(el));
+    el.addEventListener("pointerleave", hide);
+    el.addEventListener("focus", () => show(el));
+    el.addEventListener("blur", hide);
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") hide(); });
+  const btn = document.getElementById("theme"), root = document.documentElement, modes = ["auto", "light", "dark"];
+  const apply = (m) => {
+    if (m === "auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", m);
+    btn.textContent = "Theme: " + m;
+  };
+  let mode = "auto";
+  try { mode = localStorage.getItem("so-theme") || "auto"; } catch (e) {}
+  const fromUrl = new URLSearchParams(location.search).get("theme");
+  if (modes.includes(fromUrl)) mode = fromUrl;
+  apply(modes.includes(mode) ? mode : "auto");
+  btn.addEventListener("click", () => {
+    mode = modes[(modes.indexOf(mode) + 1) % modes.length];
+    apply(mode);
+    try { localStorage.setItem("so-theme", mode); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>
