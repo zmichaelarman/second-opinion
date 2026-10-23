@@ -1,0 +1,32 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "year": {
+      "title": "Year",
+      "type": "integer"
+    },
+    "genre": {
+      "enum": [
+        "drama",
+        "thriller",
+        "sci-fi",
+        "comedy",
+        "horror",
+        "fantasy"
+      ],
+      "title": "Genre",
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "year",
+    "genre"
+  ],
+  "title": "FilmNoExtraProps",
+  "type": "object"
+}

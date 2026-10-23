@@ -1,0 +1,39 @@
+{
+  "type": "function",
+  "function": {
+    "name": "save_address",
+    "description": "Save an address record with boolean, nullable unit, tags list, and geo coordinates.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "is_po_box": {
+          "type": "boolean"
+        },
+        "unit": {
+          "type": ["string", "null"]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "geo": {
+          "type": "object",
+          "properties": {
+            "lat": {
+              "type": "number"
+            },
+            "lon": {
+              "type": "number"
+            }
+          },
+          "required": ["lat", "lon"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["is_po_box", "unit", "tags", "geo"],
+      "additionalProperties": false
+    }
+  }
+}

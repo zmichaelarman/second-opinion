@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Second Opinion — Nebius Token Factory &times; NVIDIA Nemotron Conversion Report</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-alt: #f1f5f9;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #cbd5e1;
+      --accent: #2563eb;
+      --green-bg: #dcfce7;
+      --green-text: #166534;
+      --green-border: #86efac;
+      --amber-bg: #fef9c3;
+      --amber-text: #854d0e;
+      --amber-border: #fde047;
+      --red-bg: #fee2e2;
+      --red-text: #991b1b;
+      --red-border: #fca5a5;
+      --gray-bg: #e2e8f0;
+      --gray-text: #334155;
+      --code-bg: #0f172a;
+      --code-text: #e2e8f0;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b0f19;
+        --surface: #111827;
+        --surface-alt: #1e293b;
+        --text: #f1f5f9;
+        --muted: #94a3b8;
+        --border: #334155;
+        --accent: #60a5fa;
+        --green-bg: #052e16;
+        --green-text: #86efac;
+        --green-border: #166534;
+        --amber-bg: #422006;
+        --amber-text: #fde047;
+        --amber-border: #854d0e;
+        --red-bg: #450a0a;
+        --red-text: #fca5a5;
+        --red-border: #991b1b;
+        --gray-bg: #1e293b;
+        --gray-text: #cbd5e1;
+        --code-bg: #020617;
+        --code-text: #e2e8f0;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.55;
+      font-size: 15px;
+    }
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 3rem;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    h1 { font-size: 1.6rem; margin: 0 0 0.4rem; }
+    h2 { font-size: 1.25rem; margin: 2rem 0 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.35rem; }
+    h3 { font-size: 1.05rem; margin: 0.75rem 0 0.4rem; }
+    .meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+    }
+    .badge.S1_SILENT, .badge.red { background: var(--red-bg); color: var(--red-text); border-color: var(--red-border); }
+    .badge.S2_LOUD, .badge.amber { background: var(--amber-bg); color: var(--amber-text); border-color: var(--amber-border); }
+    .badge.S3_GAP, .badge.S4_DOCS { background: var(--gray-bg); color: var(--gray-text); }
+    .badge.green { background: var(--green-bg); color: var(--green-text); border-color: var(--green-border); }
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 640px;
+    }
+    th, td {
+      padding: 0.65rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.86rem;
+      vertical-align: top;
+    }
+    th {
+      background: var(--surface-alt);
+      font-weight: 600;
+    }
+    td.cell-green { background: var(--green-bg); color: var(--green-text); }
+    td.cell-amber { background: var(--amber-bg); color: var(--amber-text); }
+    td.cell-red { background: var(--red-bg); color: var(--red-text); }
+    td.cell-gray { background: var(--gray-bg); color: var(--gray-text); }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .card-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    details {
+      margin-top: 0.65rem;
+      border-top: 1px dashed var(--border);
+      padding-top: 0.5rem;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 0.88rem;
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 0.75rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.8rem;
+      margin: 0.5rem 0;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.85em;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    @media (max-width: 420px) {
+      .container { padding: 0.85rem 0.6rem 2rem; }
+      h1 { font-size: 1.3rem; }
+      th, td { padding: 0.45rem 0.5rem; font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Second Opinion: Conversion-Layer Contract &amp; Attribution Report</h1>
+      <p style="margin: 0.2rem 0 0.7rem; color: var(--muted);">
+        Deterministic verification of structured JSON, tool-call arguments, reasoning separation, and streaming for NVIDIA Nemotron models on Nebius Token Factory.
+      </p>
+      <div class="meta-bar">
+        <span><strong>Generated:</strong> {{ generated_date }}</span>
+        <span><strong>Git Hash:</strong> <code>{{ git_hash or "uncommitted" }}</code></span>
+        <span><strong>Pre-reg Tag:</strong> <code>{{ git_tag or "prereg-v1" }}</code></span>
+        <span><strong>Registry SHA-256:</strong> <code>{{ registry_hash[:16] }}&hellip;</code></span>
+        <span><strong>Total Evaluated Trials:</strong> {{ total_trials }}</span>
+      </div>
+    </header>
+
+    <section id="what-to-trust">
+      <h2>1. What to Trust — Capability Matrix</h2>
+      <p style="color: var(--muted); font-size: 0.9rem;">
+        Color is determined by the worst constituent cell in each capability column:
+        <span class="badge red">Red</span> Wilson 95% CI lower bound &gt; 1.0% failure rate &bull;
+        <span class="badge amber">Amber</span> Failures observed, Wilson lower bound &le; 1.0% &bull;
+        <span class="badge green">Green</span> Zero fatal failures (shows 95% Rule-of-Three upper bound <code>3/n</code>).
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Model</th>
+              {% for col in trust_columns %}
+              <th>{{ col }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in trust_rows %}
+            <tr>
+              <td><code>{{ row.model }}</code></td>
+              {% for cell in row.cells %}
+              <td class="cell-{{ cell.color }}">
+                <strong>{{ cell.color | upper }}</strong><br>
+                <span>{{ cell.bound_str }}</span>
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="findings">
+      <h2>2. Confirmed Findings &amp; Root-Cause Attribution</h2>
+      {% if findings %}
+        {% for f in findings %}
+        <div class="card">
+          <div class="card-header">
+            <h3 style="margin:0;">{{ f.title }}</h3>
+            <div>
+              <span class="badge {{ f.severity }}">Severity: {{ f.severity }}</span>
+              <span class="badge">Owner: {{ f.owner }}</span>
+              {% if f.rerun %}
+              <span class="badge {{ 'red' if f.rerun.status == 'still_failing' else 'green' }}">Rerun: {{ f.rerun.status }}</span>
+              {% endif %}
+            </div>
+          </div>
+          <p style="margin: 0.4rem 0;">
+            <strong>Models affected:</strong> <code>{{ f.models_affected | join(", ") }}</code> &bull;
+            <strong>Fatal codes:</strong> <code>{{ f.fatal_codes | join(", ") }}</code> &bull;
+            <strong>Workaround:</strong> {{ f.workaround }}
+          </p>
+          {% if f.experiments %}
+          <div style="margin: 0.5rem 0;">
+            {% for exp in f.experiments %}
+            <div style="font-size: 0.85rem; margin-bottom: 0.35rem;">
+              <strong>Experiment (<code>{{ exp.factor }}</code>):</strong>
+              Arm A (<code>{{ exp.arm_a.level }}</code>): {{ (exp.arm_a.failure_rate * 100) | round(1) }}% ({{ exp.arm_a.failures }}/{{ exp.arm_a.trials }}, 95% CI [{{ (exp.arm_a.wilson_lo * 100) | round(1) }}%, {{ (exp.arm_a.wilson_hi * 100) | round(1) }}%])
+              vs Arm B (<code>{{ exp.arm_b.level }}</code>): {{ (exp.arm_b.failure_rate * 100) | round(1) }}% ({{ exp.arm_b.failures }}/{{ exp.arm_b.trials }}, 95% CI [{{ (exp.arm_b.wilson_lo * 100) | round(1) }}%, {{ (exp.arm_b.wilson_hi * 100) | round(1) }}%])
+              &mdash; Fisher <em>p</em> = {{ "%.4g" | format(exp.p_value) }} (Holm adj. <em>p</em> = {{ "%.4g" | format(exp.adjusted_p_value | default(exp.p_value)) }})
+              <svg width="160" height="18" viewBox="0 0 160 18" style="vertical-align: middle; margin-left: 0.4rem;" aria-label="Arm failure rate comparison">
+                <rect x="0" y="2" width="160" height="14" rx="3" fill="none" stroke="currentColor" stroke-opacity="0.25"/>
+                <rect x="2" y="4" width="{{ (exp.arm_a.failure_rate * 156) | round(1) }}" height="4" fill="#ef4444"/>
+                <rect x="2" y="10" width="{{ (exp.arm_b.failure_rate * 156) | round(1) }}" height="4" fill="#3b82f6"/>
+              </svg>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% if f.reference_replay %}
+          <p style="font-size: 0.85rem; color: var(--muted); margin: 0.3rem 0;">
+            <strong>NVIDIA Reference Replay (<code>{{ f.reference_replay.mapped_model or "unmapped" }}</code>):</strong>
+            {% if f.reference_replay.nv_trials is defined %}
+              {{ f.reference_replay.nv_failures }}/{{ f.reference_replay.nv_trials }} ({{ (f.reference_replay.nv_failure_rate * 100) | round(1) }}%), Fisher <em>p</em> = {{ "%.4g" | format(f.reference_replay.fisher_p_value or 1.0) }}
+            {% else %}
+              {{ f.reference_replay.note }}
+            {% endif %}
+          </p>
+          {% endif %}
+          <details>
+            <summary>Minimal Reproducer (cURL &amp; Python)</summary>
+            <pre><code>{{ f.curl_repro }}</code></pre>
+            <pre><code>{{ f.python_repro }}</code></pre>
+          </details>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="card">
+          <p style="margin:0;">No contract failure clusters recorded in the provided run directories yet.</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <section id="docs-health">
+      <h2>3. Documentation Health ({{ docs_summary.passed }} of {{ docs_summary.total }} Snippets Pass, {{ docs_summary.repaired }} Repaired)</h2>
+      {% if docs_findings %}
+        {% for df in docs_findings %}
+        <div class="card">
+          <div class="card-header">
+            <strong><code>{{ df.page_url }}</code> (block #{{ df.block_idx }}, {{ df.lang }})</strong>
+            <div>
+              <span class="badge {{ df.severity | default('S4_DOCS') }}">{{ df.severity | default('S4_DOCS') }}</span>
+              <span class="badge">Owner: {{ df.owner | default('nebius_docs') }}</span>
+              <span class="badge {{ 'green' if df.fixed else 'amber' }}">{{ 'Repaired' if df.fixed else 'Needs Fix' }}</span>
+            </div>
+          </div>
+          <p style="margin: 0.3rem 0; font-size: 0.88rem;">
+            <strong>Codes:</strong> <code>{{ df.codes | join(", ") }}</code> &mdash; {{ df.error }}
+          </p>
+          {% if df.patch %}
+          <details>
+            <summary>Unified Diff Patch (verified by {{ 'static + runtime execution' if df.executed else 'static AST/JSON checks' }})</summary>
+            <pre><code>{{ df.patch }}</code></pre>
+          </details>
+          {% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="card">
+          <p style="margin:0;">Run <code>second-opinion docs</code> to populate documentation verification findings.</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <section id="methods">
+      <h2>4. Methods &amp; Limitations</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Methodology &amp; Pre-Registration</h3>
+          <ul style="margin: 0.4rem 0; padding-left: 1.2rem; font-size: 0.88rem;">
+            <li><strong>Sampling settings:</strong> NVIDIA recommended defaults (<code>temperature=1.0, top_p=0.95</code>); <code>max_tokens=1024</code> (thinking off) or <code>4096</code> (thinking on/default).</li>
+            <li><strong>Two-stage sample sizes:</strong> Screening at <code>n={{ config.n_screen }}</code> per cell across 38 conditions &times; {{ models_list | length }} models; escalation to <code>n={{ config.n_escalate }}</code> for core conditions and cells with &ge;1 fatal failure.</li>
+            <li><strong>Statistical thresholds:</strong> Wilson 95% score intervals, Clopper-Pearson exact intervals, Rule-of-Three upper bounds, and two-sided Fisher exact tests with Holm-Bonferroni correction (&alpha; = {{ config.alpha }}).</li>
+            <li><strong>Deterministic grading:</strong> Every response is graded by deterministic Python oracles in <code>oracles.py</code>. LLMs never grade test outcomes.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Scope &amp; Limitations</h3>
+          <ul style="margin: 0.4rem 0; padding-left: 1.2rem; font-size: 0.88rem;">
+            <li><strong>Light load only:</strong> Requests are paced at &le;{{ config.rpm }} RPM honoring <code>x-ratelimit-*</code> headers. No stress or load testing was performed.</li>
+            <li><strong>Global serverless routing:</strong> Nebius Token Factory public serverless endpoints report region <code>Global</code>; physical serving instances can change without notice.</li>
+            <li><strong>Reference API stack:</strong> NVIDIA's <code>integrate.api.nvidia.com</code> endpoint uses a distinct serving configuration and serves as a comparative diagnostic reference rather than ground truth.</li>
+            <li><strong>Not tested:</strong> Model general intelligence benchmarks, fine-tuning endpoints, batch jobs, or multi-turn context saturation beyond contract probes.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="data">
+      <h2>5. Raw Data Archives</h2>
+      <div class="card">
+        <p style="margin: 0 0 0.5rem; font-size: 0.9rem;">
+          Sanitized, append-only call logs (with authentication headers excluded):
+        </p>
+        <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.88rem;">
+          {% for gz in data_archives %}
+          <li><a href="data/{{ gz }}" style="color: var(--accent);"><code>docs/data/{{ gz }}</code></a></li>
+          {% else %}
+          <li><code>docs/data/calls.jsonl.gz</code></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

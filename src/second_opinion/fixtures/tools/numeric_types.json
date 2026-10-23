@@ -1,0 +1,26 @@
+{
+  "type": "function",
+  "function": {
+    "name": "record_metric",
+    "description": "Record a street number, 64-bit integer identifier, and ratio.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "street_number": {
+          "type": "integer",
+          "description": "Street number as an integer."
+        },
+        "big_id": {
+          "type": "integer",
+          "description": "64-bit integer identifier."
+        },
+        "ratio": {
+          "type": "number",
+          "description": "Ratio as a floating-point number."
+        }
+      },
+      "required": ["street_number", "big_id", "ratio"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "properties": {
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "rating": {
+      "maximum": 10,
+      "minimum": 0,
+      "title": "Rating",
+      "type": "number"
+    }
+  },
+  "required": [
+    "title",
+    "rating"
+  ],
+  "title": "MovieRating",
+  "type": "object"
+}

@@ -1,0 +1,30 @@
+source: "third-party listing + Nebius Token Factory console"
+as_of: "2026-10-20"
+default:
+  input_per_1m: 0.30
+  output_per_1m: 0.90
+models:
+  "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B":
+    role: "Nemotron 3 Nano"
+    input_per_1m: 0.06
+    output_per_1m: 0.24
+  "nvidia/nemotron-3-nano-30b-a3b":
+    role: "Nemotron 3 Nano"
+    input_per_1m: 0.06
+    output_per_1m: 0.24
+  "nvidia/Nemotron-3_5-Lightning":
+    role: "Nemotron 3.5 Lightning"
+    input_per_1m: 0.06
+    output_per_1m: 0.24
+  "nvidia/nemotron-3-super-120b-a12b":
+    role: "Nemotron 3 Super"
+    input_per_1m: 0.30
+    output_per_1m: 0.90
+  "nvidia/Nemotron-3-Ultra-550b-a55b":
+    role: "Nemotron 3 Ultra"
+    input_per_1m: 1.00
+    output_per_1m: 3.00
+  "nvidia/nemotron-3-ultra-550b-a55b":
+    role: "Nemotron 3 Ultra"
+    input_per_1m: 1.00
+    output_per_1m: 3.00

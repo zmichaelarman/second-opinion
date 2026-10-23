@@ -1,0 +1,22 @@
+{
+  "type": "function",
+  "function": {
+    "name": "write_file",
+    "description": "Write exact text content to a file path.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Target file path."
+        },
+        "content": {
+          "type": "string",
+          "description": "Exact file contents."
+        }
+      },
+      "required": ["path", "content"],
+      "additionalProperties": false
+    }
+  }
+}

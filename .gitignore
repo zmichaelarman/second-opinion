@@ -1,0 +1,11 @@
+.env
+runs/
+.venv/
+__pycache__/
+*.pyc
+experiments/*.py.tmp
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+agent.py

@@ -1,0 +1,26 @@
+{
+  "type": "function",
+  "function": {
+    "name": "lookup_account",
+    "description": "Look up an account by postal code, account identifier, and numeric label.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "zip_code": {
+          "type": "string",
+          "description": "Postal ZIP code string (preserve leading zeros)."
+        },
+        "account_id": {
+          "type": "string",
+          "description": "Account identifier string (preserve leading zeros)."
+        },
+        "numeric_label": {
+          "type": "string",
+          "description": "Numeric label formatted as a string."
+        }
+      },
+      "required": ["zip_code", "account_id", "numeric_label"],
+      "additionalProperties": false
+    }
+  }
+}

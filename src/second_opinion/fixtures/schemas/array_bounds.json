@@ -1,0 +1,18 @@
+{
+  "properties": {
+    "tags": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 3,
+      "minItems": 2,
+      "title": "Tags",
+      "type": "array"
+    }
+  },
+  "required": [
+    "tags"
+  ],
+  "title": "FilmTags",
+  "type": "object"
+}
