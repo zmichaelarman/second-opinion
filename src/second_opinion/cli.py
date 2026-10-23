@@ -94,3 +94,15 @@ def run(
         s, console, stage=stage.value, models_spec=models_spec, contracts_spec=contracts_spec, rpm=rpm,
         concurrency=concurrency, max_n=parse_max_n(max_n), yes=yes, prereg=not no_prereg_check, resume=resume,
     ))
+
+
+@app.command()
+def docs(
+    execute: bool = typer.Option(False, "--execute", help="Run eligible Python examples and probe unknown parameters (paid)."),
+    repair: bool = typer.Option(False, "--repair", help="Let the repair agent fix failing examples (paid)."),
+    yes: bool = typer.Option(False, "--yes", help="Send the paid calls after the estimate is approved."),
+) -> None:
+    """Check every code example in the Token Factory inference docs (static checks are free)."""
+    from .docs_check.pipeline import run_docs
+
+    _run(lambda s: run_docs(s, console, execute=execute, repair=repair, yes=yes))
