@@ -31,3 +31,9 @@ discovery:
   include: [nemotron]
   exclude: [VL, Omni, Safety, embed, rerank]
 
+# NVIDIA-hosted counterparts for the reference replay (§11.6), by role; checked 2026-10-23 against the
+# public GET /v1/models. Plain Nemotron 3 Nano has no counterpart there, so Nano findings stay unknown.
+reference_models:
+  lightning: nvidia/nemotron-3.5-lightning-30b-a3b
+  super: nvidia/nemotron-3-super-120b-a12b
+  ultra: nvidia/nemotron-3-ultra-550b-a55b

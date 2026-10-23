@@ -124,3 +124,59 @@ def report(
     paths = build_report(settings, run_dirs, out_dir)
     for name, path in paths.items():
         console.print(f"{name}: {path}")
+
+
+def _latest_findings(settings: Settings, given: Optional[Path]) -> Path:
+    from .reference import latest_findings
+
+    path = given or latest_findings(settings.runs_dir)
+    if path is None:
+        console.print("[red]No findings file. Run `second-opinion investigate` first, or pass --findings.[/red]")
+        raise typer.Exit(2)
+    return path
+
+
+@app.command()
+def investigate(
+    runs: list[Path] = typer.Option([], "--runs", help="Run directories (default: every screen and escalate run)."),
+    hypothesis_model: Optional[str] = typer.Option(None, "--hypothesis-model", help="Model that proposes causes (default: Ultra)."),
+    code_model: Optional[str] = typer.Option(None, "--code-model", help="Model that writes experiments (default: Super)."),
+    max_clusters: int = typer.Option(5, "--max-clusters", help="Investigate the N most severe clusters."),
+    cluster_budget: float = typer.Option(3.0, "--cluster-budget", help="Spend cap per cluster in USD."),
+    yes: bool = typer.Option(False, "--yes", help="Send the paid calls after the estimate is approved."),
+) -> None:
+    """Root-cause failure clusters: shrink, hypothesize (Ultra), experiment (Super + testkit), decide (Fisher)."""
+    from .investigator.loop import investigate as run_investigation
+    from .report.build import default_runs
+
+    def make(s: Settings):
+        run_dirs = [p.resolve() for p in runs] or default_runs(s.runs_dir)
+        return run_investigation(s, console, run_dirs, hypothesis_model=hypothesis_model, code_model=code_model,
+                                 yes=yes, max_clusters=max_clusters, cluster_budget=cluster_budget)
+
+    _run(make)
+
+
+@app.command()
+def reference(
+    findings: Optional[Path] = typer.Option(None, "--findings", help="findings.jsonl (default: the latest investigation)."),
+    yes: bool = typer.Option(False, "--yes", help="Send the calls after the plan is approved."),
+) -> None:
+    """Replay each finding on NVIDIA's hosted API (n=30) and attribute an owner."""
+    from .reference import reference as run_reference
+
+    _run(lambda s: run_reference(s, console, _latest_findings(s, findings), yes=yes))
+
+
+@app.command()
+def check(
+    tools: Optional[Path] = typer.Option(None, "--tools", help="Your tool definitions (OpenAI format, JSON list)."),
+    schemas: Optional[Path] = typer.Option(None, "--schemas", help="Your JSON schemas ({name: schema})."),
+    models_spec: str = typer.Option("auto", "--models", help="auto, or a comma list of model IDs."),
+    n: int = typer.Option(50, "--n", help="Trials per argument set or schema, per model."),
+    yes: bool = typer.Option(False, "--yes", help="Send the paid calls after the estimate is approved."),
+) -> None:
+    """Bring your own tools and schemas: per-tool, per-model reliability on Token Factory."""
+    from .byo import check as run_check
+
+    _run(lambda s: run_check(s, console, tools, schemas, models_spec=models_spec, n=n, yes=yes))
