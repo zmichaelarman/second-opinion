@@ -1,0 +1,33 @@
+# Runtime defaults. CLI flags override these; section numbers refer to CLAUDE.md.
+
+providers:
+  tokenfactory:
+    base_url: https://api.tokenfactory.nebius.com/v1/
+    api_key_env: NEBIUS_API_KEY
+  nvidia:                       # reference replay only (§11.6)
+    base_url: https://integrate.api.nvidia.com/v1
+    api_key_env: NVIDIA_API_KEY
+    rpm: 20
+
+# Client and pacing (§8)
+rpm: 40                         # ceiling; the pacer also caps at 0.8 x x-ratelimit-limit-requests
+concurrency: 6
+connect_timeout_s: 10
+read_timeout_s: 600             # Ultra reasoning can be slow
+
+# Sampling, max_tokens and the thinking switch are part of the pre-registered design, so they
+# live in src/second_opinion/contracts/base.py (and in the registry hash), not here.
+
+# Budget (§8): SECOND_OPINION_BUDGET_USD overrides
+budget_usd: 40
+
+# Stages and statistics (§8, §9)
+n_screen: 50
+n_escalate: 300
+alpha: 0.01
+
+# Model discovery (§3)
+discovery:
+  include: [nemotron]
+  exclude: [VL, Omni, Safety, embed, rerank]
+

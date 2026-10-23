@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "second-opinion"
+version = "0.1.0"
+description = "Contract tests for how Nebius Token Factory turns NVIDIA Nemotron output into OpenAI-shaped JSON, tool calls, reasoning and streams."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx",
+    "openai",
+    "typer",
+    "rich",
+    "pydantic>=2",
+    "jsonschema",
+    "scipy",
+    "numpy",
+    "jinja2",
+    "pyyaml",
+    "python-dotenv",
+    "pytest",
+    "pytest-asyncio",
+]
+
+[project.scripts]
+second-opinion = "second_opinion.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/second_opinion"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-m 'not live'"
+markers = ["live: calls a real API; excluded by default (run with -m live)"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"

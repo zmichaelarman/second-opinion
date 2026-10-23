@@ -1,0 +1,17 @@
+{
+  "type": "function",
+  "function": {
+    "name": "save_numbers",
+    "description": "Save numeric address data.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "street_number": {"type": "integer"},
+        "big_id": {"type": "integer"},
+        "ratio": {"type": "number"}
+      },
+      "required": ["street_number", "big_id", "ratio"],
+      "additionalProperties": false
+    }
+  }
+}

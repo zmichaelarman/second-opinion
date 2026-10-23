@@ -1,0 +1,26 @@
+{
+  "type": "function",
+  "function": {
+    "name": "save_address",
+    "description": "Save structured address data.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "is_po_box": {"type": "boolean"},
+        "unit": {"type": ["string", "null"]},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "geo": {
+          "type": "object",
+          "properties": {
+            "lat": {"type": "number"},
+            "lon": {"type": "number"}
+          },
+          "required": ["lat", "lon"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["is_po_box", "unit", "tags", "geo"],
+      "additionalProperties": false
+    }
+  }
+}

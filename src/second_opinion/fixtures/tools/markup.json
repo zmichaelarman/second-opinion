@@ -1,0 +1,16 @@
+{
+  "type": "function",
+  "function": {
+    "name": "write_file",
+    "description": "Write text content to a file.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "path": {"type": "string"},
+        "content": {"type": "string"}
+      },
+      "required": ["path", "content"],
+      "additionalProperties": false
+    }
+  }
+}

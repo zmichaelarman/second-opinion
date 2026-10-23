@@ -1,0 +1,30 @@
+# Token Factory prices, USD per 1M tokens. The budget guard multiplies usage by these.
+# Rows are keyed by Token Factory model ID; GET /v1/models is authoritative for IDs.
+# Before any paid stage, confirm each row in the Token Factory console and update source/as_of.
+# A discovered model with no row here has no price and must not be run.
+# The NVIDIA reference API (build.nvidia.com free tier) is unbilled and not listed.
+models:
+  nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B:   # ID casing UNVERIFIED
+    role: nano
+    input: 0.06
+    output: 0.24
+    source: third-party listing (UNVERIFIED)
+    as_of: "2026-10-20"
+  nvidia/Nemotron-3_5-Lightning:
+    role: lightning
+    input: 0.06
+    output: 0.24
+    source: third-party listing
+    as_of: "2026-10-20"
+  nvidia/nemotron-3-super-120b-a12b:
+    role: super
+    input: 0.30
+    output: 0.90
+    source: third-party listing
+    as_of: "2026-10-20"
+  nvidia/Nemotron-3-Ultra-550b-a55b:
+    role: ultra
+    input: 1.00
+    output: 3.00
+    source: third-party listing
+    as_of: "2026-10-20"

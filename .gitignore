@@ -1,0 +1,21 @@
+# secrets
+.env
+
+# raw data (append-only, never committed)
+runs/
+
+# python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+
+# agent-written experiment drafts
+experiments/*.py.tmp
+
+# macOS
+.DS_Store

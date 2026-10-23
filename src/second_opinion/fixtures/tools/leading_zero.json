@@ -1,0 +1,17 @@
+{
+  "type": "function",
+  "function": {
+    "name": "save_account",
+    "description": "Save a customer's account identifiers.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "zip_code": {"type": "string"},
+        "account_id": {"type": "string"},
+        "numeric_label": {"type": "string"}
+      },
+      "required": ["zip_code", "account_id", "numeric_label"],
+      "additionalProperties": false
+    }
+  }
+}
